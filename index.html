@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matti – AI Chatbuddy voor jongeren | Voor gemeenten & scholen</title>
+  <meta name="description" content="Matti is een laagdrempelige AI-chatapp die jongeren helpt bij stress, pesten, groepsdruk en mentale druk. Schaalbaar inzetbaar via gemeente of school." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #2563eb;
+      --blue-light: #eff6ff;
+      --blue-mid:   #3b82f6;
+      --dark:       #1e293b;
+      --muted:      #64748b;
+      --border:     #e2e8f0;
+      --white:      #ffffff;
+      --red:        #ef4444;
+      --orange:     #f97316;
+      --green:      #22c55e;
+      --radius:     12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--dark);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .nav-logo span { font-size: 20px; font-weight: 700; color: var(--blue); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta {
+      background: var(--blue); color: var(--white);
+      padding: 8px 20px; border-radius: 8px;
+      text-decoration: none; font-size: 14px; font-weight: 600;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: #1d4ed8; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #eff6ff 100%);
+      padding: 80px 24px 64px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--blue); color: var(--white);
+      font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800; line-height: 1.2;
+      color: var(--dark); max-width: 760px; margin: 0 auto 20px;
+    }
+    .hero h1 span { color: var(--blue); }
+    .hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted); max-width: 600px; margin: 0 auto 36px;
+    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--blue); color: var(--white);
+      padding: 14px 28px; border-radius: 10px;
+      text-decoration: none; font-weight: 700; font-size: 16px;
+      transition: background .2s, transform .1s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--white); color: var(--blue);
+      padding: 14px 28px; border-radius: 10px;
+      text-decoration: none; font-weight: 700; font-size: 16px;
+      border: 2px solid var(--blue);
+      transition: background .2s;
+      display: inline-block;
+    }
+    .btn-secondary:hover { background: var(--blue-light); }
+
+    .hero-avatar {
+      margin: 48px auto 0;
+      width: 120px; height: 120px;
+      border-radius: 50%; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(37,99,235,.2);
+      border: 4px solid var(--white);
+    }
+    .hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── STATS ── */
+    .stats {
+      background: var(--white);
+      padding: 48px 24px;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      text-align: center; padding: 16px 40px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 36px; font-weight: 800; color: var(--blue); }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── SECTIONS ── */
+    section { padding: 72px 24px; }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 12px;
+    }
+    h2 {
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 800; line-height: 1.25;
+      color: var(--dark); margin-bottom: 16px;
+    }
+    .lead {
+      font-size: 18px; color: var(--muted);
+      max-width: 640px; margin-bottom: 48px;
+    }
+
+    /* ── PROBLEM ── */
+    .problem { background: #fff7ed; }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px; margin-top: 40px;
+    }
+    .problem-card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 24px; border-left: 4px solid var(--orange);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .problem-card .icon { font-size: 28px; margin-bottom: 12px; }
+    .problem-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .problem-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+    .problem-stat {
+      display: inline-block;
+      background: #fff7ed; color: var(--orange);
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; margin-top: 10px;
+      border: 1px solid #fed7aa;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--white); }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px; margin-top: 40px;
+    }
+    .step { text-align: center; }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--blue); color: var(--white);
+      font-size: 20px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: var(--muted); }
+
+    /* ── FEATURES ── */
+    .features { background: var(--blue-light); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px; margin-top: 40px;
+    }
+    .feature-card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 28px; box-shadow: 0 2px 12px rgba(37,99,235,.08);
+    }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--blue-light); color: var(--blue);
+      font-size: 22px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── MOCKUP ── */
+    .mockup-section { background: var(--white); }
+    .mockup-wrap {
+      display: flex; align-items: center; gap: 48px; flex-wrap: wrap;
+    }
+    .mockup-text { flex: 1; min-width: 280px; }
+    .mockup-text h2 { margin-bottom: 16px; }
+    .mockup-text p { color: var(--muted); margin-bottom: 20px; font-size: 16px; }
+    .check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; }
+    .check-list li::before {
+      content: "✓"; color: var(--green);
+      font-weight: 800; font-size: 16px; flex-shrink: 0; margin-top: 1px;
+    }
+    .phone-mock {
+      flex: 0 0 260px;
+      background: var(--dark); border-radius: 32px;
+      padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      margin: 0 auto;
+    }
+    .phone-screen {
+      background: var(--white); border-radius: 22px;
+      overflow: hidden; padding: 16px;
+    }
+    .chat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .chat-name { font-size: 14px; font-weight: 700; }
+    .chat-status { font-size: 11px; color: var(--green); }
+    .bubble {
+      border-radius: 16px; padding: 10px 14px;
+      font-size: 13px; line-height: 1.5; margin-bottom: 8px;
+      max-width: 85%;
+    }
+    .bubble-matti {
+      background: var(--blue-light); color: var(--dark);
+      border-bottom-left-radius: 4px;
+    }
+    .bubble-user {
+      background: var(--blue); color: var(--white);
+      border-bottom-right-radius: 4px;
+      margin-left: auto;
+    }
+
+    /* ── DASHBOARD ── */
+    .dashboard-section { background: #f8fafc; }
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px; margin-top: 40px;
+    }
+    .dash-card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 24px; border-top: 3px solid var(--blue);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .dash-card .dash-num { font-size: 32px; font-weight: 800; color: var(--blue); }
+    .dash-card .dash-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .dash-card .dash-trend {
+      font-size: 12px; font-weight: 600; margin-top: 8px;
+    }
+    .trend-up { color: var(--green); }
+    .trend-down { color: var(--red); }
+
+    /* ── QUOTE ── */
+    .quote-section {
+      background: var(--blue);
+      padding: 64px 24px;
+      text-align: center;
+    }
+    .quote-text {
+      font-size: clamp(20px, 3vw, 32px);
+      font-weight: 700; color: var(--white);
+      max-width: 760px; margin: 0 auto 24px;
+      line-height: 1.4;
+    }
+    .quote-sub { font-size: 16px; color: rgba(255,255,255,.7); }
+
+    /* ── FOR WHO ── */
+    .for-who { background: var(--white); }
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px; margin-top: 40px;
+    }
+    .audience-card {
+      border: 2px solid var(--border); border-radius: var(--radius);
+      padding: 28px; transition: border-color .2s, box-shadow .2s;
+    }
+    .audience-card:hover { border-color: var(--blue); box-shadow: 0 4px 20px rgba(37,99,235,.1); }
+    .audience-icon { font-size: 36px; margin-bottom: 16px; }
+    .audience-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .audience-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .audience-tag {
+      display: inline-block; margin-top: 12px;
+      background: var(--blue-light); color: var(--blue);
+      font-size: 12px; font-weight: 600;
+      padding: 4px 12px; border-radius: 20px;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      padding: 80px 24px; text-align: center;
+    }
+    .cta-section h2 { color: var(--white); margin-bottom: 16px; }
+    .cta-section p { color: rgba(255,255,255,.8); font-size: 18px; margin-bottom: 36px; max-width: 560px; margin-left: auto; margin-right: auto; }
+    .cta-form {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+      max-width: 480px; margin: 0 auto;
+    }
+    .cta-form input {
+      flex: 1; min-width: 200px;
+      padding: 14px 18px; border-radius: 10px;
+      border: none; font-size: 15px;
+      outline: none;
+    }
+    .cta-form button {
+      background: var(--white); color: var(--blue);
+      padding: 14px 24px; border-radius: 10px;
+      border: none; font-weight: 700; font-size: 15px;
+      cursor: pointer; transition: background .2s;
+      white-space: nowrap;
+    }
+    .cta-form button:hover { background: var(--blue-light); }
+    .cta-note { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 16px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,.6);
+      padding: 40px 24px; text-align: center;
+    }
+    footer .footer-logo { font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+    footer p { font-size: 13px; }
+    footer a { color: rgba(255,255,255,.6); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .stat { padding: 16px 20px; }
+      .mockup-wrap { flex-direction: column-reverse; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="matti-avatar.png" alt="Matti" />
+    <span>Matti</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#probleem">Het probleem</a></li>
+    <li><a href="#hoe">Hoe het werkt</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#voor-wie">Voor wie</a></li>
+  </ul>
+  <a class="nav-cta" href="#contact">Neem contact op</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Voor gemeenten &amp; scholen</div>
+    <h1>Jeugdzorg staat onder druk.<br/><span>Matti biedt schaalbare hulp.</span></h1>
+    <p>Een laagdrempelige AI-chatapp die jongeren 24/7 ondersteunt bij stress, pesten, groepsdruk en mentale druk — zonder wachttijden.</p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="#contact">Vraag een demo aan</a>
+      <a class="btn-secondary" href="#hoe">Hoe werkt het?</a>
+    </div>
+    <div class="hero-avatar">
+      <img src="matti-avatar.png" alt="Matti avatar" />
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">1 op 5</div>
+    <div class="stat-label">jongeren heeft psychische klachten</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">40%</div>
+    <div class="stat-label">ervaart online pesten</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">6–12 mnd</div>
+    <div class="stat-label">gemiddelde wachttijd jeugdzorg</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">beschikbaar via Matti</div>
+  </div>
+</div>
+
+<!-- PROBLEEM -->
+<section class="problem" id="probleem">
+  <div class="container">
+    <div class="section-label">Het probleem</div>
+    <h2>De jeugdzorg loopt vol.<br/>Jongeren wachten te lang.</h2>
+    <p class="lead">Gemeenten zien een groeiende groep jongeren met mentale klachten. De reguliere zorg is overbelast. Matti vult het gat — laagdrempelig, schaalbaar en direct beschikbaar.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="icon">😔</div>
+        <h3>Vroeg-tijdige depressie</h3>
+        <p>Steeds meer jongeren van 10–18 jaar kampen met aanhoudende somberheid en angstklachten, vaak zonder professionele hulp.</p>
+        <span class="problem-stat">↑ 35% in 5 jaar</span>
+      </div>
+      <div class="problem-card">
+        <div class="icon">📱</div>
+        <h3>Online pesten</h3>
+        <p>Cyberpesten vindt 24/7 plaats. Jongeren durven er thuis of op school niet over te praten uit schaamte of angst.</p>
+        <span class="problem-stat">40% slachtoffer</span>
+      </div>
+      <div class="problem-card">
+        <div class="icon">👥</div>
+        <h3>Groepsdruk</h3>
+        <p>Sociale media versterkt groepsdruk enorm. Jongeren voelen zich verplicht mee te gaan, ook als dit schadelijk is.</p>
+        <span class="problem-stat">Grootste stressfactor</span>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🏥</div>
+        <h3>Overbelaste jeugdzorg</h3>
+        <p>Wachttijden van 6 tot 12 maanden zijn geen uitzondering. In die tijd verslechtert de situatie van jongeren verder.</p>
+        <span class="problem-stat">6–12 mnd wachttijd</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOE HET WERKT -->
+<section class="how" id="hoe">
+  <div class="container">
+    <div class="section-label">Hoe het werkt</div>
+    <h2>Eenvoudig. Veilig. Schaalbaar.</h2>
+    <p class="lead">Matti werkt als een vertrouwde vriend die altijd beschikbaar is. Geen app-download, geen drempel, geen wachttijd.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Jongere opent Matti</h3>
+        <p>Via een link van school of gemeente. Geen account nodig, direct starten.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Matti stelt vragen</h3>
+        <p>Empathisch, zonder oordeel. De AI luistert en helpt de jongere zijn gevoel te verwoorden.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Inzicht en actie</h3>
+        <p>Matti biedt concrete handvatten en signaleert wanneer professionele hulp nodig is.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Rapportage voor gemeente</h3>
+        <p>Geanonimiseerde data toont trends per wijk of school — zonder privacyschending.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOCKUP -->
+<section class="mockup-section">
+  <div class="container">
+    <div class="mockup-wrap">
+      <div class="mockup-text">
+        <div class="section-label">De app</div>
+        <h2>Zo ziet Matti eruit</h2>
+        <p>Een vertrouwde, rustige interface die jongeren uitnodigt om te praten. Geen formulieren, geen diagnoses — gewoon een gesprek.</p>
+        <ul class="check-list">
+          <li>Werkt op elke smartphone, ook zonder download</li>
+          <li>Beschikbaar in het Nederlands</li>
+          <li>Gesprekken worden veilig opgeslagen</li>
+          <li>Jongere behoudt altijd de controle</li>
+          <li>Geen advertenties, geen tracking</li>
+        </ul>
+      </div>
+      <div class="phone-mock">
+        <div class="phone-screen">
+          <div class="chat-header">
+            <div class="chat-avatar">
+              <img src="matti-avatar.png" alt="Matti" />
+            </div>
+            <div>
+              <div class="chat-name">Matti</div>
+              <div class="chat-status">● Online</div>
+            </div>
+          </div>
+          <div class="bubble bubble-matti">Hoi Lisa! Fijn dat je er bent. Wat speelt er bij jou?</div>
+          <div class="bubble bubble-user">Ik voel me niet goed op school</div>
+          <div class="bubble bubble-matti">Dat klinkt zwaar. Kun je me meer vertellen wat er gebeurt?</div>
+          <div class="bubble bubble-user">Ze doen raar tegen me in de groepsapp</div>
+          <div class="bubble bubble-matti">Dat is heel vervelend. Je bent niet alleen — laten we het er samen over hebben.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="container">
+    <div class="section-label">Wat Matti biedt</div>
+    <h2>Meer dan een chatbot</h2>
+    <p class="lead">Matti combineert empathische AI met slimme signalering en rapportage voor gemeenten en scholen.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>Empathische gesprekken</h3>
+        <p>Matti luistert zonder oordeel en stelt de juiste vragen. Getraind op jeugdpsychologie en communicatie met jongeren.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Vroeg-signalering</h3>
+        <p>Wanneer een gesprek zorgwekkende signalen bevat, wordt dit veilig doorgegeven aan de verantwoordelijke professional.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Dashboard voor gemeente</h3>
+        <p>Geanonimiseerde inzichten per wijk, school of leeftijdsgroep. Zie waar de druk het grootst is en stuur gericht bij.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Privacy by design</h3>
+        <p>Alle data is versleuteld. Gesprekken worden nooit gedeeld zonder toestemming. AVG-compliant.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Direct inzetbaar</h3>
+        <p>Geen lange implementatietrajecten. Matti is binnen één week operationeel voor een school of gemeente.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Schaalbaar</h3>
+        <p>Van één school tot een hele gemeente. Matti schaalt mee zonder extra personeel of infrastructuur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="dashboard-section" id="dashboard">
+  <div class="container">
+    <div class="section-label">Dashboard</div>
+    <h2>Inzicht voor beleidsmakers</h2>
+    <p class="lead">Het Matti-dashboard geeft gemeenten en scholen realtime inzicht in de mentale gezondheid van jongeren — geanonimiseerd en AVG-compliant.</p>
+    <div class="dashboard-cards">
+      <div class="dash-card">
+        <div class="dash-num">247</div>
+        <div class="dash-label">Actieve gebruikers deze maand</div>
+        <div class="dash-trend trend-up">↑ 18% t.o.v. vorige maand</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-num">83%</div>
+        <div class="dash-label">Voelt zich gehoord na gesprek</div>
+        <div class="dash-trend trend-up">↑ Positieve uitkomst</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-num">12</div>
+        <div class="dash-label">Doorverwijzingen naar hulpverlener</div>
+        <div class="dash-trend trend-down">Tijdige interventie</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-num">#1</div>
+        <div class="dash-label">Meest besproken thema: groepsdruk</div>
+        <div class="dash-trend">Gevolgd door: pesten, angst</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="quote-section">
+  <div class="container">
+    <div class="quote-text">"Elke dag dat een jongere wacht op hulp, is een dag te veel. Matti overbrugt die wachttijd — veilig, schaalbaar en menselijk."</div>
+    <div class="quote-sub">Wim — Oprichter Matti</div>
+  </div>
+</div>
+
+<!-- VOOR WIE -->
+<section class="for-who" id="voor-wie">
+  <div class="container">
+    <div class="section-label">Voor wie</div>
+    <h2>Matti werkt voor iedereen<br/>die jongeren ondersteunt</h2>
+    <div class="audience-grid">
+      <div class="audience-card">
+        <div class="audience-icon">🏛️</div>
+        <h3>Gemeente</h3>
+        <p>Zet Matti in als preventieve laag vóór de jeugdzorg. Verminder instroom, bespaar kosten en help jongeren eerder.</p>
+        <span class="audience-tag">Subsidie mogelijk</span>
+      </div>
+      <div class="audience-card">
+        <div class="audience-icon">🏫</div>
+        <h3>School</h3>
+        <p>Bied leerlingen een veilige plek om te praten, buiten de klas. Ondersteun de zorgcoördinator met data en signalen.</p>
+        <span class="audience-tag">Snel implementeerbaar</span>
+      </div>
+      <div class="audience-card">
+        <div class="audience-icon">🧑‍⚕️</div>
+        <h3>Jeugdzorginstelling</h3>
+        <p>Gebruik Matti als aanvulling op bestaande hulpverlening. Overbrugt wachttijden en houdt jongeren betrokken.</p>
+        <span class="audience-tag">Integreert met bestaand aanbod</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <h2>Klaar om Matti in te zetten?</h2>
+    <p>Laat je e-mailadres achter en we plannen een vrijblijvende demo in — speciaal voor jouw gemeente of school.</p>
+    <div class="cta-form">
+      <input type="email" placeholder="jouw@gemeente.nl" />
+      <button type="button">Demo aanvragen</button>
+    </div>
+    <p class="cta-note">Geen verplichtingen. Binnen 2 werkdagen contact.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Matti</div>
+  <p>AI Chatbuddy voor jongeren &nbsp;·&nbsp; <a href="mailto:info@matti.app">info@matti.app</a> &nbsp;·&nbsp; <a href="#">Privacybeleid</a></p>
+  <p style="margin-top:8px; font-size:12px;">© 2026 Matti. Alle rechten voorbehouden.</p>
+</footer>
+
+</body>
+</html>
