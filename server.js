@@ -29,6 +29,30 @@ function parseBody(req, cb) {
 
 const server = http.createServer((req, res) => {
 
+  if (req.method === 'POST' && req.url === '/api/pilot-aanmelding') {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      let d = {};
+      try { d = JSON.parse(body); } catch(e) {}
+      const notificatie = {
+        from: SMTP_USER, to: ONTVANGERS,
+        subject: 'Nieuwe pilot-aanmelding - VO school',
+        text: `Nieuwe pilot-aanmelding:\n\nNaam:    ${d.naam}\nSchool:  ${d.school}\nE-mail:  ${d.email}\nTelefoon: ${d.telefoon || '-'}`
+      };
+      const bevestiging = {
+        from: SMTP_USER, to: d.email,
+        subject: 'Demonstratie Matti aangevraagd',
+        text: `Beste ${d.naam},\n\nBedankt voor uw interesse in het pilotprogramma van Matti.\n\nIk neem binnen 2 werkdagen persoonlijk contact met u op.\n\nMet vriendelijke groet,\nWim Moddejongen\nOntwikkelaar van Matti`
+      };
+      transporter.sendMail(notificatie, () => {});
+      transporter.sendMail(bevestiging, () => {});
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/aanvraag') {
     parseBody(req, (d) => {
       const notificatie = {
